@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam_lambda_sample
+  
+  SAM Template for sam_lambda_sample
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 180
+
+Resources:
+  SamLambdaSampleFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/
+      Handler: sam-lambda-sample
+      FunctionName: sam-lambda-sample
+      Runtime: go1.x
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Events:
+        ScheduledEvent:
+          Type: Schedule
+          Properties:
+            Name: sam-lambda-sample-schedule
+            Schedule: cron(* * * * ? *)
+      Environment:
+        Variables:
+          PERMIT: "1"
+      Tags:
+        AppNameTag: sam-lambda-sample
+
+  SamLambdaSampleLogGloup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${SamLambdaSampleFunction}
+      RetentionInDays: 7
+
+Outputs:
+  SamLambdaSampleFunction:
+    Value: !GetAtt SamLambdaSampleFunction.Arn
+  SamLambdaSampleFunctionIamRole:
+    Value: !GetAtt SamLambdaSampleFunctionRole.Arn
+
+
